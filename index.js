@@ -75,11 +75,24 @@ app.post('/order', (req, res) => {
   }
 
   // Set up a query to the orders table to add an order for Rowan and Evil Rowan to prepare
-
+  const data = [food_item, user_id]
+  const query = 'INSERT INTO orders (food_item, user_id) VALUES (?, ?)';
 
   // Execute the query
+  connection.query(query, data)
+    .then((result)=> {
+      console.log(result);
+      //if successful we can let the user know
+        // Respond with the order is done
+      res.send("Order received! Evil Rowan will now ruin it! Or will he?").status(200)
+    })
+    .catch((err) => {
+      console.error(err)
+    })
 
-  // Respond with the order is done
+
+
+
 
 })
 
