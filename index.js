@@ -15,12 +15,12 @@ const dbConfig = {
 };
 
 // Create a MySQL pool for connection management
-const pool = mysql.createPool(dbConfig);
+const connection = mysql.createPool(dbConfig);
 
 // Test the database connection
 app.get('/test-connection', async (req, res) => {
   try {
-    const connection = await pool.getConnection();
+    const connection = await connection.getConnection();
     connection.release();
     res.json({ message: 'Database connection successful!' });
   } catch (error) {
@@ -41,8 +41,8 @@ app.post('/users', async (req, res) => {
 
     // Insert the new user
     const query = 'INSERT INTO users (name, email, age) VALUES (?, ?, ?)';
-    const [result] = await pool.query(query, [name, email, age || null]);
-    
+    const [result] = await connection.query(query, [name, email, age || null]);
+    console.log('Result:', result);
     res.status(201).json({ 
       id: result.insertId,
       message: 'User created successfully' 
@@ -62,6 +62,27 @@ app.post('/users', async (req, res) => {
   }
 });
 
+
+
+// Tell Rowan what Mr. Pounds and Christian the Terrible want
+app.post('/order', (req, res) => {
+  // Get food item and user_id
+  const {food_item, user_id} = req.body;
+
+  // Validate input
+  if (!food_item || !user_id) {
+    return res.status(400).json({ error: 'The type of wings and id of person are required' });
+  }
+
+  // Set up a query to the orders table to add an order for Rowan and Evil Rowan to prepare
+
+
+  // Execute the query
+
+  // Respond with the order is done
+
+})
+
 // Route to get a user by ID
 app.get('/users/:id', async (req, res) => {
   try {
@@ -73,7 +94,7 @@ app.get('/users/:id', async (req, res) => {
     }
 
     // Get the user
-    const [users] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
+    const [users] = await connection.query('SELECT * FROM users WHERE id = ?', [id]);
     
     if (users.length === 0) {
       return res.status(404).json({ error: 'User not found' });
@@ -94,18 +115,25 @@ app.get('/users/:id', async (req, res) => {
 // Initialize the database and start the server
 (async () => {
   try {
-    // Initialize the database and get the connection pool    
+    // Initialize the database and get the connection connection    
     // Create a test table if needed
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        email VARCHAR(100) UNIQUE NOT NULL,
-        age INT
-      )
-    `);
+    // await connection.query(`
+    //   CREATE TABLE IF NOT EXISTS users (
+    //     id INT AUTO_INCREMENT PRIMARY KEY,
+    //     name VARCHAR(100) NOT NULL,
+    //     email VARCHAR(100) UNIQUE NOT NULL,
+    //     age INT
+    //   );
+
+    // CREATE TABLE IF NOT EXISTS orders (
+    //   id INT AUTO_INCREMENT PRIMARY KEY,
+    //   food_item VARCHAR(100) NOT NULL,
+    //   user_id INT NOT NULL,
+    //   FOREIGN KEY (user_id) REFERENCES users(user_id)
+    //   );
+    // `);
     
-    console.log('Tables initialized successfully');
+    // console.log('Tables initialized successfully');
     
     // Start the server
     app.listen(port, () => {
